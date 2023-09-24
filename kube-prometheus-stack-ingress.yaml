@@ -1,0 +1,42 @@
+prometheus:
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    paths: ['/prometheus']
+    pathType: Prefix
+    hosts:
+      - gke-cluster-demo
+  prometheusSpec:
+    externalUrl: "https://gke-cluster-demo/prometheus"
+    routePrefix: /prometheus
+
+alertmanager:
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    paths: ['/alertmanager']
+    pathType: Prefix
+    hosts:
+      - gke-cluster-demo
+  alertmanagerSpec: 
+    externalUrl: https://gke-cluster-demo/alertmanager
+    routePrefix: /alertmanager
+
+grafana:
+  service:
+    port: 3000
+  env:
+    GF_SERVER_ROOT_URL: https://gke-cluster-demo/grafana
+    GF_SERVER_SERVE_FROM_SUB_PATH: 'true'
+  # username is 'admin'
+  adminPassword: prom-operator
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    path: /grafana
+    pathType: Prefix
+    hosts:
+      - gke-cluster-demo
+  grafanaSpec:
+    externalUrl: "https://gke-cluster-demo/grafana"
+    routePrefix: /grafana

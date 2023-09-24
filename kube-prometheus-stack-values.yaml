@@ -1,0 +1,40 @@
+prometheus:
+  prometheusSpec:
+    serviceMonitorSelectorNilUsesHelmValues: false
+    serviceMonitorNamespaceSelector: {}
+    serviceMonitorSelector: {}
+    scrapeInterval: 30s
+    scrapeTimeout: 20s
+    evaluationInterval: 1m
+additionalPrometheusRules:
+  - name: custom-rules
+    groups:
+      - name: AllInstances
+        rules:
+          - alert: InstanceDown
+            expr: up == 0
+            for: 1m
+            annotations:
+              title: 'Instance {{ $labels.instance }} down'
+              description: '{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 1 minute.'
+            labels:
+              severity: 'critical'
+
+alertmanager:
+  config:
+    global:
+      smtp_smarthost: smtp.gmail.com:587
+      smtp_auth_username: your_email@address
+      smtp_auth_password: 'your_password'
+      smtp_from: your_email@address
+    route:
+      group_by: ['alertname', 'prometheus']
+      receiver: 'gmail-notifications'
+      routes:
+      - receiver: 'gmail-notifications'
+        match:
+          severity: critical
+    receivers:
+    - name: 'gmail-notifications'
+      email_configs:
+      - to: your_email@address
